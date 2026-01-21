@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  # 1. MongoDB Service
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    restart: always
+    ports:
+      - "${MONGO_PORT}:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+    volumes:
+      - mongo_data:/data/db
+
+  # 2. Mongo Express (Web UI replacement for Compass)
+  mongo-express:
+    image: mongo-express:latest
+    container_name: mongo-express
+    restart: always
+    ports:
+      - "${MONGO_EXPRESS_PORT}:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_ROOT_USER}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_ROOT_PASSWORD}
+      # Note: We use the service name 'mongodb' here, not localhost
+      ME_CONFIG_MONGODB_URL: mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@mongodb:27017/
+      ME_CONFIG_BASICAUTH_USERNAME: ${ME_BASIC_AUTH_USER}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${ME_BASIC_AUTH_PASSWORD}
+    depends_on:
+      - mongodb
+
+  # 3. ChromaDB Service
+  chroma:
+    image: chromadb/chroma:latest
+    container_name: chromadb
+    restart: always
+    ports:
+      - "${CHROMA_PORT}:8000"
+    volumes:
+      - chroma_data:/chroma/chroma
+    environment:
+      - IS_PERSISTENT=TRUE
+
+  # 4. JupyterLab Service (No Token)
+  jupyter:
+    image: jupyter/scipy-notebook:latest
+    container_name: jupyterlab
+    ports:
+      - "${JUPYTER_PORT}:8888"
+    # This command disables authentication
+    command: start-notebook.sh --IdentityProvider.token='' --IdentityProvider.password=''
+    volumes:
+      - ./notebooks:/home/jovyan/notebooks
+
+volumes:
+  mongo_data:
+  chroma_data:
