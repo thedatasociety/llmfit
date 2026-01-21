@@ -54,6 +54,22 @@ services:
     volumes:
       - ./notebooks:/home/jovyan/notebooks
 
+# 5. Open WebUI Service
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    restart: always
+    ports:
+      - "${OPEN_WEBUI_PORT}:8080"
+    volumes:
+      - open_webui:/app/backend/data
+    environment:
+      - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY}
+    # Optional: Allows Open WebUI to access Ollama if it's running on your host machine
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
 volumes:
   mongo_data:
   chroma_data:
+  open_webui:
