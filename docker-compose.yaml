@@ -52,7 +52,7 @@ services:
     # This command disables authentication
     command: start-notebook.sh --IdentityProvider.token='' --IdentityProvider.password=''
     volumes:
-      - ./notebooks:/home/jovyan/notebooks
+      - ./:/home/jovyan/
 
 # 5. Open WebUI Service
   open-webui:
@@ -73,3 +73,13 @@ volumes:
   mongo_data:
   chroma_data:
   open_webui:
+
+
+  # volumes:
+  #     - ./notebooks:/home/jovyan/work
+  #     # Map the requirements file to a temporary location
+  #     - ./requirements.txt:/tmp/requirements.txt
+  #   # Chain the commands: Install packages -> Start Jupyter
+  #   command: >
+  #     bash -c "pip install --no-cache-dir -r /tmp/requirements.txt &&
+  #     start-notebook.sh --IdentityProvider.token='' --IdentityProvider.password=''"
